@@ -1,0 +1,69 @@
+<script src="./dist/redux.js"></script>
+
+<script>
+    const sayHiOnDispatch = createStore => {
+      return (rootReducer, preloadedState, enhancers) => {
+        const store = createStore(rootReducer, preloadedState, enhancers)
+
+        function newDispatch(action) {
+          const result = store.dispatch(action)
+          console.log("Hi!")
+          return result;
+        }
+
+        return { ...store, dispatch: newDispatch }
+      }
+    }
+    const includeMeaningOfLife = (createStore) => {
+      return (rootReducer, preloadedState, enhancers) => {
+        const store = createStore(rootReducer, preloadedState, enhancers)
+
+        function newGetState() {
+          return {
+            ...store.getState(),
+            meaningOfLife: 42,
+         }
+        }
+
+        return { ...store, getState: newGetState }
+      }
+    }
+
+    const reducerA = (state = { count: 0}, action) => {
+        console.log('reducerA', action);
+        if (action.type === 'a/add') {
+            return {
+                ...state,
+                count: state.count + 1
+            }
+        }
+        return state
+    }
+
+    const reducerB = (state = { count: 0}, action) => {
+        console.log('reducerB', action);
+        if (action.type === 'B/add') {
+            return {
+                ...state,
+                count: state.count + 1
+            }
+        }
+        return state
+    }
+    const { createStore, combineReducers, compose } = Redux
+    const rootReducer = combineReducers({ reducerA, reducerB })
+    const composedEnhancer = compose(sayHiOnDispatch, includeMeaningOfLife)
+    const store = createStore(rootReducer, composedEnhancer) 
+    // createStore.js exampleEnhancers 这边应该是看源码的49行注释  enhancer = preloadedState
+    store.subscribe(() => {
+        console.log(store.getState());
+    })
+
+    const addA = () => store.dispatch({ type: 'a/add' })
+
+    const fn = () => {
+        addA()
+        setTimeout(() => fn(), 2000)        
+    }
+    fn()
+</script>

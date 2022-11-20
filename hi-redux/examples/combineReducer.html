@@ -1,0 +1,52 @@
+<script src="./dist/redux.js"></script>
+
+<script>
+    const reducerA = (state = { count: 0}, action) => {
+        console.log('reducerA', action);
+        // 根据不同type做不同的处理
+        if (action.type === 'a/add') {
+            return {
+                ...state,
+                count: state.count + 1
+            }
+        }
+        if (action.type === 'a/add2') {
+            return {
+                ...state,
+                count: state.count + 2
+            }
+        }
+        return state
+    }
+
+    const reducerB = (state = { count: 0}, action) => {
+        console.log('reducerB', action);
+        if (action.type === 'B/add') {
+            return {
+                ...state,
+                count: state.count + 1
+            }
+        }
+        return state
+    }
+    const { createStore, combineReducers } = Redux
+    const reduer = combineReducers({ reducerA, reducerB })
+    // console.log(reduer);
+    const store = createStore(reduer)
+
+    console.log(store.getState());
+    
+    store.subscribe(() => {
+        console.log(store.getState());
+    })
+
+    // console.log(store);
+
+    const addA = () => store.dispatch({ type: 'a/add' })
+
+    const fn = () => {
+        addA()
+        setTimeout(() => fn(), 2000)        
+    }
+    fn()
+</script>
